@@ -155,11 +155,21 @@ def agent_status():
     """Return the agent status."""
     has_key = bool(os.environ.get("GEMINI_API_KEY", "").strip())
     review_count = len(glob.glob(os.path.join(REVIEWS_DIR, "*.md")))
+    
+    sdk_version = "unknown"
+    try:
+        import google.generativeai
+        sdk_version = google.generativeai.__version__
+    except:
+        pass
+
     return jsonify({
         "gemini_connected": has_key,
         "review_count": review_count,
-        "model": "gemini-2.5-flash" if has_key else "mock (offline)",
-        "project_root": PROJECT_ROOT
+        "model": "gemini-1.5-flash" if has_key else "mock (offline)", # Switched to 1.5-flash for stable free quota
+        "sdk_version": sdk_version,
+        "project_root": PROJECT_ROOT,
+        "deploy_ts": "2026-03-19-V1" # Added a version tag
     })
 
 

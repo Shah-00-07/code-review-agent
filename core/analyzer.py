@@ -57,7 +57,7 @@ def perform_code_review(code_content, file_name="unknown"):
             
             genai.configure(api_key=api_key)
             model = genai.GenerativeModel(
-                model_name='gemini-2.0-flash', # Updated to 2.0-flash
+                model_name='gemini-1.5-flash', # Switched to 1.5-flash for stable free quota
                 system_instruction=system_prompt
             )
             
