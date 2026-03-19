@@ -5,7 +5,7 @@
 // ── Backend API Base URL ─────────────────────────────────
 // IMPORTANT: Replace this with your Render backend URL after deployment
 // Example: const API_BASE = 'https://code-review-agent-xxxx.onrender.com';
-const API_BASE = '';  // Leave empty for local dev, set to Render URL for production
+const API_BASE = 'https://code-review-agent-qxqv.onrender.com';  // Render backend
 
 // ── State ────────────────────────────────────────────────
 let currentTab = 'paste';
@@ -90,18 +90,22 @@ async function submitReview() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ code, filename })
         });
-        const data = await res.json();
-
-        if (data.error) {
-            renderReview(`### Error\n${data.error}`, 0);
+        
+        if (!res.ok) {
+            const errText = await res.text();
+            renderReview(`### Server Error (${res.status})\nThe backend returned an error.\n\n${errText}`, 0);
         } else {
-            renderReview(data.report, data.elapsed);
-            document.getElementById('output-title').textContent = `Review: ${filename}`;
+            const data = await res.json();
+            if (data.error) {
+                renderReview(`### Error\n${data.error}`, 0);
+            } else {
+                renderReview(data.report, data.elapsed);
+                document.getElementById('output-title').textContent = `Review: ${filename}`;
+            }
+            fetchStatus(); // Refresh stats
         }
-
-        fetchStatus(); // Refresh stats
     } catch (e) {
-        renderReview(`### Network Error\nFailed to reach the review server. Is it running?`, 0);
+        renderReview(`### Network Error\nFailed to reach the review server at:\n\`${API_BASE}\`\n\nDetails: ${e.message}`, 0);
     } finally {
         btn.disabled = false;
         overlay.style.display = 'none';
