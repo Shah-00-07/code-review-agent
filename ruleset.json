@@ -1,0 +1,24 @@
+{
+  "project_rules": {
+    "Nirma_University": {
+      "naming_conventions": {
+        "database_tables": "nirma_[module]_table",
+        "python_classes": "PascalCase",
+        "python_functions": "snake_case"
+      },
+      "architecture": "Must ensure data isolation between departments. Role-based Access Control (RBAC) required."
+    },
+    "Pinsoftek": {
+      "naming_conventions": {
+        "react_components": "PascalCase",
+        "hooks": "use[Name]",
+        "css_modules": "[name].module.css"
+      },
+      "architecture": "React functional components only. Strict memoization for performance optimization. No prop drilling."
+    }
+  },
+  "security": {
+    "reject_hardcoded_secrets": true,
+    "require_parameterized_queries": true
+  }
+}
