@@ -39,30 +39,40 @@ def index():
 @app.route("/api/review", methods=["POST"])
 def review_code():
     """Run a code review on submitted code or file."""
-    data = request.json
-    code = data.get("code", "")
-    filename = data.get("filename", "untitled.py")
+    try:
+        data = request.json
+        code = data.get("code", "")
+        filename = data.get("filename", "untitled.py")
 
-    if not code.strip():
-        return jsonify({"error": "No code provided."}), 400
+        if not code.strip():
+            return jsonify({"error": "No code provided."}), 400
 
-    start = time.time()
-    report = perform_code_review(code, file_name=filename)
-    elapsed = round(time.time() - start, 2)
+        start = time.time()
+        report = perform_code_review(code, file_name=filename)
+        elapsed = round(time.time() - start, 2)
 
-    # Save the review artifact
-    ts = int(time.time())
-    artifact_name = f"web_review_{filename}_{ts}.md"
-    artifact_path = os.path.join(REVIEWS_DIR, artifact_name)
-    with open(artifact_path, "w", encoding="utf-8") as f:
-        f.write(f"# Web Review: {filename}\nDate: {datetime.now().isoformat()}\n\n{report}")
+        # Save the review artifact
+        ts = int(time.time())
+        artifact_name = f"web_review_{filename}_{ts}.md"
+        artifact_path = os.path.join(REVIEWS_DIR, artifact_name)
+        with open(artifact_path, "w", encoding="utf-8") as f:
+            f.write(f"# Web Review: {filename}\nDate: {datetime.now().isoformat()}\n\n{report}")
 
-    return jsonify({
-        "report": report,
-        "elapsed": elapsed,
-        "artifact": artifact_name,
-        "timestamp": datetime.now().isoformat()
-    })
+        return jsonify({
+            "report": report,
+            "elapsed": elapsed,
+            "artifact": artifact_name,
+            "timestamp": datetime.now().isoformat()
+        })
+    except Exception as e:
+        import traceback
+        tb = traceback.format_exc()
+        return jsonify({
+            "report": f"### Server Error\n\nThe backend crashed while processing your review.\n\n**Error:** `{str(e)}`\n\n**Traceback:**\n```\n{tb}\n```",
+            "elapsed": 0,
+            "artifact": "",
+            "timestamp": datetime.now().isoformat()
+        })
 
 
 @app.route("/api/review-file", methods=["POST"])
