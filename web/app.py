@@ -166,7 +166,7 @@ def agent_status():
     return jsonify({
         "gemini_connected": has_key,
         "review_count": review_count,
-        "model": "gemini-1.5-flash" if has_key else "mock (offline)", # Switched to 1.5-flash for stable free quota
+        "model": "gemini-1.5-flash-latest" if has_key else "mock (offline)", # Fixed model name
         "sdk_version": sdk_version,
         "project_root": PROJECT_ROOT,
         "deploy_ts": "2026-03-19-V1" # Added a version tag
