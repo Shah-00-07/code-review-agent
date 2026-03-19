@@ -53,13 +53,15 @@ def perform_code_review(code_content, file_name="unknown"):
     
     if api_key:
         try:
-            from google import genai
+            import google.generativeai as genai
             
-            client = genai.Client(api_key=api_key)
-            response = client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=[system_prompt, f"Please review this code:\n\n{code_content}"]
+            genai.configure(api_key=api_key)
+            model = genai.GenerativeModel(
+                model_name='gemini-2.0-flash', # Updated to 2.0-flash
+                system_instruction=system_prompt
             )
+            
+            response = model.generate_content(f"Please review this code:\n\n{code_content}")
             return response.text
         except ImportError as e:
             return f"""
@@ -68,20 +70,25 @@ The `google-generativeai` package could not be imported on this server.
 
 **Error:** `{str(e)}`
 
-**Fix:** Ensure `google-generativeai` is in `requirements.txt` and the server has been redeployed.
+**Fix:** Ensure `google-generativeai` is in `requirements.txt`.
             """
         except Exception as e:
+            import traceback
+            tb = traceback.format_exc()
             return f"""
 ### Error: Gemini API Call Failed
 The AI engine encountered an error while processing your code review.
 
 **Error:** `{str(e)}`
 
-**File:** `{file_name}`
+**Traceback:**
+```
+{tb}
+```
 
 ### Suggestions
-- Verify your `GEMINI_API_KEY` environment variable is set correctly.
-- Check that the API key has access to `gemini-2.5-flash`.
+- Verify your `GEMINI_API_KEY` environment variable in Render.
+- Check if `gemini-2.0-flash` is available for your API key.
             """
     
     # Fallback mock review when no API key is available
@@ -97,7 +104,7 @@ The AI engine encountered an error while processing your code review.
 
 ### Refactored Snippet
 ```python
-# Coming soon: AI-generated refactored logic via Gemini Flash 2.5!
+# Coming soon: AI-generated refactored logic via Gemini Flash 2.0!
 ```
     """
 
