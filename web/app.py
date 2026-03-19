@@ -157,19 +157,25 @@ def agent_status():
     review_count = len(glob.glob(os.path.join(REVIEWS_DIR, "*.md")))
     
     sdk_version = "unknown"
+    available_models = []
     try:
-        import google.generativeai
-        sdk_version = google.generativeai.__version__
+        import google.generativeai as genai
+        sdk_version = genai.__version__
+        genai.configure(api_key=os.environ.get("GEMINI_API_KEY", ""))
+        for m in genai.list_models():
+            if 'generateContent' in m.supported_generation_methods:
+                available_models.append(m.name.replace('models/', ''))
     except:
         pass
 
     return jsonify({
         "gemini_connected": has_key,
         "review_count": review_count,
-        "model": "gemini-1.5-flash-latest" if has_key else "mock (offline)", # Fixed model name
+        "model": "gemini-1.5-flash-latest" if has_key else "mock (offline)",
         "sdk_version": sdk_version,
+        "available_models": available_models[:15],
         "project_root": PROJECT_ROOT,
-        "deploy_ts": "2026-03-19-V1" # Added a version tag
+        "deploy_ts": "2026-03-19-V2"
     })
 
 
